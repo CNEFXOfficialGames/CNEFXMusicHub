@@ -25,7 +25,6 @@
     height: calc(100vh - 70px);
   }
 
-  /* LEFT: playlist */
   .playlist {
     width: 300px;
     background: #181818;
@@ -52,7 +51,6 @@
     font-weight: bold;
   }
 
-  /* RIGHT: player */
   .player {
     flex: 1;
     display: flex;
@@ -70,19 +68,9 @@
     font-weight: bold;
   }
 
-  .play {
-    background: #1db954;
-  }
-
-  .pause {
-    background: #ff4d4d;
-    color: white;
-  }
-
-  .next {
-    background: #333;
-    color: white;
-  }
+  .play { background: #1db954; }
+  .pause { background: #ff4d4d; color: white; }
+  .next { background: #333; color: white; }
 
   audio {
     margin-top: 20px;
@@ -93,14 +81,12 @@
 
 <body>
 
-<header>🎵 My Spotify Clone</header>
+<header>🎵 My Music Player</header>
 
 <div class="container">
 
-  <!-- PLAYLIST -->
   <div class="playlist" id="playlist"></div>
 
-  <!-- PLAYER -->
   <div class="player">
     <h2 id="title">Select a song</h2>
 
@@ -116,11 +102,12 @@
 </div>
 
 <script>
-/* 🎧 YOUR SONGS */
+/* 🎧 YOUR REAL SONG */
 const songs = [
-  { name: "Song 1", file: "music/song1.mp3" },
-  { name: "Song 2", file: "music/song2.mp3" },
-  { name: "Song 3", file: "music/song3.mp3" }
+  {
+    name: "Just Listen",
+    file: "music/listen.mp3"
+  }
 ];
 
 let currentIndex = 0;
