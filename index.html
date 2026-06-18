@@ -2,178 +2,178 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CNEFX Hub</title>
+<title>My Music Player</title>
 
 <style>
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #dff6ff, #ffffff);
-    color: #111;
-    text-align: center;
+    background: #121212;
+    color: white;
   }
 
   header {
-    padding: 60px 20px 20px;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 42px;
-  }
-
-  .card {
-    max-width: 700px;
-    margin: 20px auto;
-    background: white;
     padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    background: #1f1f1f;
   }
 
-  button {
-    padding: 10px 14px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 8px;
+  .container {
+    display: flex;
+    height: calc(100vh - 70px);
   }
 
-  .song-btn {
-    width: 100%;
-    background: #f2f2f2;
-  }
-
-  .song-btn:hover {
-    background: #ddd;
-  }
-
-  /* ACCOUNT BUTTON */
-  .account {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #ccc;
-    cursor: pointer;
-    display: none;
-  }
-
-  .account img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* DROPDOWN */
-  .dropdown {
-    position: fixed;
-    top: 65px;
-    right: 15px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    display: none;
-    flex-direction: column;
-    min-width: 150px;
-  }
-
-  .dropdown button {
-    background: white;
-    border: none;
+  /* LEFT: playlist */
+  .playlist {
+    width: 300px;
+    background: #181818;
+    overflow-y: auto;
     padding: 10px;
-    text-align: left;
-    cursor: pointer;
   }
 
-  .dropdown button:hover {
-    background: #f2f2f2;
+  .song {
+    padding: 10px;
+    margin: 6px 0;
+    background: #242424;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .song:hover {
+    background: #333;
+  }
+
+  .song.active {
+    background: #1db954;
+    color: black;
+    font-weight: bold;
+  }
+
+  /* RIGHT: player */
+  .player {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .controls button {
+    margin: 10px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .play {
+    background: #1db954;
+  }
+
+  .pause {
+    background: #ff4d4d;
+    color: white;
+  }
+
+  .next {
+    background: #333;
+    color: white;
+  }
+
+  audio {
+    margin-top: 20px;
+    width: 300px;
   }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>🎮 CNEFX Hub</h1>
-  <p>Games + Music Player</p>
-</header>
+<header>🎵 My Spotify Clone</header>
 
-<!-- 👤 ACCOUNT -->
-<div class="account" id="accountBtn">
-  <img id="pfp">
-</div>
+<div class="container">
 
-<div class="dropdown" id="dropdown">
-  <button onclick="location.href='profile.html'">My Profile</button>
-  <button onclick="logout()">Logout</button>
-</div>
+  <!-- PLAYLIST -->
+  <div class="playlist" id="playlist"></div>
 
-<!-- 🎵 MUSIC -->
-<div class="card">
-  <h2>🎧 Music Player</h2>
+  <!-- PLAYER -->
+  <div class="player">
+    <h2 id="title">Select a song</h2>
 
-  <audio id="player" controls style="width:100%;"></audio>
+    <div class="controls">
+      <button class="play" onclick="playSong()">Play</button>
+      <button class="pause" onclick="pauseSong()">Pause</button>
+      <button class="next" onclick="nextSong()">Next</button>
+    </div>
 
-  <div id="songs"></div>
+    <audio id="audio" controls></audio>
+  </div>
+
 </div>
 
 <script>
-/* ================= USER ================= */
-const user = JSON.parse(localStorage.getItem("user") || "null");
-
-const accBtn = document.getElementById("accountBtn");
-const pfp = document.getElementById("pfp");
-const dropdown = document.getElementById("dropdown");
-
-if (user) {
-  accBtn.style.display = "block";
-  pfp.src = user.photo || "https://via.placeholder.com/40";
-
-  accBtn.onclick = () => {
-    dropdown.style.display =
-      dropdown.style.display === "flex" ? "none" : "flex";
-  };
-}
-
-function logout() {
-  localStorage.removeItem("user");
-  location.reload();
-}
-
-window.addEventListener("click", (e) => {
-  if (!accBtn.contains(e.target)) {
-    dropdown.style.display = "none";
-  }
-});
-
-/* ================= MUSIC ================= */
+/* 🎧 YOUR SONGS */
 const songs = [
   { name: "Song 1", file: "music/song1.mp3" },
   { name: "Song 2", file: "music/song2.mp3" },
   { name: "Song 3", file: "music/song3.mp3" }
 ];
 
-const player = document.getElementById("player");
-const songsDiv = document.getElementById("songs");
+let currentIndex = 0;
 
-function playSong(song) {
-  player.src = song.file;
-  player.play();
+const playlist = document.getElementById("playlist");
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+
+/* render playlist */
+function render() {
+  playlist.innerHTML = "";
+
+  songs.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "song";
+    div.textContent = s.name;
+
+    div.onclick = () => loadSong(i);
+
+    playlist.appendChild(div);
+  });
+
+  updateActive();
 }
 
-songs.forEach(s => {
-  const btn = document.createElement("button");
-  btn.className = "song-btn";
-  btn.textContent = "▶ " + s.name;
+function loadSong(i) {
+  currentIndex = i;
+  audio.src = songs[i].file;
+  title.textContent = songs[i].name;
+  audio.play();
+  updateActive();
+}
 
-  btn.onclick = () => playSong(s);
+function updateActive() {
+  document.querySelectorAll(".song").forEach((el, i) => {
+    el.classList.toggle("active", i === currentIndex);
+  });
+}
 
-  songsDiv.appendChild(btn);
-});
+function playSong() {
+  audio.play();
+}
+
+function pauseSong() {
+  audio.pause();
+}
+
+function nextSong() {
+  currentIndex = (currentIndex + 1) % songs.length;
+  loadSong(currentIndex);
+}
+
+render();
 </script>
 
 </body>
